@@ -6,19 +6,19 @@ var lib = require("../");
 
 describe("IsProcessRunning", function () {
   it("should be running", function () {
-    const child = spawn("Terminal");
+    const child = spawn("htop");
 
-    assert.strictEqual(lib.isProcessRunning(child.pid, "Terminal"), true);
+    assert.strictEqual(lib.isProcessRunning(child.pid, "htop"), true);
 
     child.stdin.pause();
     child.kill();
   });
 
   it("should not be running", function () {
-    assert.strictEqual(lib.isProcessRunning(1234, "Terminal"), false);
+    assert.strictEqual(lib.isProcessRunning(1234, "htop"), false);
   });
 
   it("should external process be running", function () {
-    assert.strictEqual(lib.isProcessRunning(361, "Terminal"), true);
+    assert.strictEqual(lib.isProcessRunning(4645, "htop"), true);
   });
 });

@@ -8,41 +8,28 @@
 
 #include <signal.h>
 #include <sys/types.h>
-#include <sys/sysctl.h>
 
 
 int get_process_name_by_pid(const int pid, char* nameBuffer, int nameBufferSize)
 {
-    struct kinfo_proc *process = NULL;
-    size_t proc_buf_size;
-    int st, proc_count;
-    int i = 0;
-    int name[4] = { CTL_KERN, KERN_PROC, KERN_PROC_PID, pid };
-    
-    st = sysctl(name, 4, NULL, &proc_buf_size, NULL, 0);
-    if (st == -1) {
-        return errno;
-    }
+  char fileName[1024];
+  sprintf(fileName, "/proc/%d/cmdline",pid);
+  FILE* f = fopen(fileName,"r");
 
-    process = (kinfo_proc *)malloc(proc_buf_size);
-    st = sysctl(name, 4, process, &proc_buf_size, NULL, 0);
-    if (st == -1) {
-        return errno;
-    }
-    
-    proc_count = proc_buf_size / sizeof(struct kinfo_proc);
-    while (i < proc_count) {
-        if (process[i].kp_proc.p_pid == pid) {
-            strcpy(nameBuffer, process[i].kp_proc.p_comm);
-
-            free(process);
-            return 1;
-        }
-        i++;
-    }
-
-    free(process);
+	if (!f)
+  {
     return 0;
+  }
+
+  size_t size;
+  size = fread(nameBuffer, sizeof(char), nameBufferSize, f);
+  if(size > 0 && nameBuffer[size-1] == '\n') // remove possible ln at the end of line
+  {
+    nameBuffer[size-1]='\0';
+  }
+  fclose(f);
+
+  return 1;
 }
 
 // int processPid, string processName -> int
